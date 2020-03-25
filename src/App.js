@@ -4,13 +4,15 @@ import React, { Fragment } from 'react';
 
 const baseURL = 'https://api.themoviedb.org/3/';
 const APIKEY = '21f53b102f9fcc68f706abfc92770539';
-
+let baseImageURL = "https://image.tmdb.org/t/p/";
+let posterSize = 'w300';
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            titleData: {},
+            recomendData: {},
+            titleNum: '',
             data: {},
             outputState: true, // If true return list of titles, if false return title discription
         }
@@ -30,8 +32,16 @@ class App extends React.Component {
         .then((data) => {this.setState({data: data, outputState: true})})
     }
 
-    handleTitleClick(titleData) {
-        this.setState({outputState: false, titleData: titleData})
+    handleTitleClick(titleNum) {
+        let link = "".concat(baseURL, "movie/", this.state.data.results[titleNum].id, "/recommendations?api_key=", APIKEY, "&language=en-US&page=1");
+        fetch(link)
+            .then(result=>result.json())
+            .then((recomendData)=>{
+                this.setState({
+                    outputState: false,
+                    titleNum: titleNum,
+                    recomendData: recomendData
+                })})       
     }
 
     componentDidMount() {
@@ -47,7 +57,8 @@ class App extends React.Component {
                 <OutputComponent 
                 outputState={this.state.outputState}
                 data={this.state.data}
-                titleData={this.state.titleData}
+                recomendData={this.state.recomendData}
+                titleNum={this.state.titleNum}
                 onTitleClick={this.handleTitleClick}
                  />
             </Fragment>
@@ -85,38 +96,30 @@ class SearchBar extends React.Component {
 class OutputComponent extends React.Component {
     render() {
     if (this.props.outputState) {
-        const data = this.props.data;
-        let rows = [];
-        for (let movie in data.results) {
-            rows.push(<CreateTitle
-                 movie={movie}
-                 data={data}
-                 key={movie}
-                 onTitleClick={this.props.onTitleClick}
-                  />);}
-        return (
+      const data = this.props.data;
+      let titles = [];
+      for (let titleNum in data.results) {
+        titles.push(<CreateTitle
+          titleNum={titleNum}
+          data={data}
+          key={titleNum}
+          onTitleClick={this.props.onTitleClick}
+          />);
+      }
+      return (
             <div> 
                 <table>
-                    <tbody>{rows}</tbody>
+                    <tbody>{titles}</tbody>
                 </table>
             </div>
-                )
+              )
     } else {
           return (<TitleDiscription 
-            titleData={this.props.titleData}
-            data={this.props.data}  />)
+            titleNum={this.props.titleNum}
+            onTitleClick={this.props.onTitleClick}
+            data={this.props.data}
+            recomendData={this.props.recomendData}  />)
       }
-    }
-}
-
-class TitleDiscription extends React.Component {   
-    render() {
-        const dataName = this.props.data.results[this.props.titleData].original_title;
-        return (
-            <div> 
-               {dataName} 
-            </div>
-        )
     }
 }
 
@@ -132,12 +135,11 @@ class CreateTitle extends React.Component {
         this.props.onTitleClick(e.target.innerHTML[0] - 1);
     }
     render() {
-        const dataName = this.props.data.results[this.props.movie].original_title;
-        const numInList = Number(this.props.movie) + 1;
+        const dataName = this.props.data.results[this.props.titleNum].original_title;
+        const numInList = Number(this.props.titleNum) + 1;
         return (
             <tr>
-                <th 
-                colSpan='2'  
+                <th   
                 onClick={this.handleTitleClick}>
                     {numInList + ')' + dataName}
                 </th>
@@ -147,5 +149,76 @@ class CreateTitle extends React.Component {
 }
 
 
+class TitleDiscription extends React.Component { 
+    render() {
+        const data = this.props.data.results[this.props.titleNum];
+        return (
+            <div>
+                <TitlePoster posterPath={data.poster_path} />
+               <h1>{data.original_title}</h1>
+               <TitleOverview dataOverview={data.overview} />
+               <TitleRecomendations 
+               recomendData={this.props.recomendData}
+               onTitleClick={this.props.onTitleClick} />
+            </div>
+        )
+    }
+}
 
+
+class TitlePoster extends React.Component {
+    render() {
+        const link = "".concat(baseImageURL, posterSize, this.props.posterPath); 
+        return (
+            <div>
+                <img src={link} alt='No image' />
+            </div>
+        )
+    }
+}
+
+
+class TitleOverview extends React.Component {
+    render() {
+        const overview = this.props.dataOverview;
+        return (
+            <div>
+                {overview}
+            </div>
+        )
+    }
+}
+
+
+class TitleRecomendations extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {titles: []}
+    }
+
+    render() {
+        const titles = [];
+        let numOfRecomendations = 5;
+        for (let titleNum in this.props.recomendData.results) {
+            numOfRecomendations--;
+            titles.push(<CreateTitle
+                titleNum={titleNum}
+                data={this.props.recomendData}
+                key={titleNum}
+                onTitleClick={this.props.onTitleClick}
+                />);
+            if(numOfRecomendations==0) {
+                break;
+            }
+        }
+        return (
+            <div>
+                <h3>Recomendations</h3>
+                <table>
+                    <tbody>{titles}</tbody>
+                </table>
+            </div>
+        )
+    }
+}
 export default App;
