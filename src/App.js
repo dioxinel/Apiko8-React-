@@ -25,38 +25,37 @@ class App extends React.Component {
 
 
     handleButtonClick(searchText) {
-        let link;
-
+        let url;
         if (!searchText) {
-            link = "".concat(baseURL, 
+            url = "".concat(baseURL, 
                             "trending/movie/week?api_key=", 
                             APIKEY);
           }else{
-           link = "".concat(baseURL, 
+           url = "".concat(baseURL, 
                             "search/movie?api_key=", 
                             APIKEY,
                             "&query=", 
                             searchText);
           }
 
-        fetch(link)
+        fetch(url)
         .then(result=>result.json())
         .then((data) => {this.setState({data: data, outputState: true})})
     }
 
 
     handleTitleClick(titleNum) {
-        let link;
+        let url;
 
         if(this.state.outputState) {
-            link = "".concat(baseURL,
+            url = "".concat(baseURL,
                              "movie/", 
                              this.state.data.results[titleNum].id, 
                              "/recommendations?api_key=", 
                              APIKEY, 
                              "&language=en-US&page=1");
         } else { 
-            link = "".concat(baseURL, 
+            url = "".concat(baseURL, 
                             "movie/", 
                             this.state.recomendData.results[titleNum].id, 
                             "/recommendations?api_key=", 
@@ -64,7 +63,7 @@ class App extends React.Component {
                             "&language=en-US&page=1");
         }
 
-        fetch(link)
+        fetch(url)
             .then(result=>result.json())
             .then((recomendData)=>{
                 if(!this.state.outputState) {
@@ -143,9 +142,8 @@ class OutputComponent extends React.Component {
     render() {
         if (this.props.outputState) {
             const data = this.props.data;
-            let titles = [];
-
-            for (let titleNum in data.results) {
+            const titles = []; 
+            for(let titleNum in data.results) {
                 titles.push(<CreateTitle
                     titleNum={titleNum}
                     data={data}
@@ -221,10 +219,10 @@ class TitleDiscription extends React.Component {
 
 class TitlePoster extends React.Component {
     render() {
-        const link = "".concat(baseImageURL, posterSize, this.props.posterPath); 
+        const url = "".concat(baseImageURL, posterSize, this.props.posterPath); 
         return (
             <div>
-                <img src={link} alt={noimageImageUrl} />
+                <img src={url} alt={noimageImageUrl} />
             </div>
         )
     }
@@ -248,7 +246,7 @@ class TitleRecomendations extends React.Component {
         const titles = [];
         let numOfRecomendations = 5;
 
-        for (let titleNum in this.props.recomendData.results) {
+        for(let titleNum in this.props.recomendData.results) {
             numOfRecomendations--;
             titles.push(<CreateTitle
                 titleNum={titleNum}
@@ -261,6 +259,7 @@ class TitleRecomendations extends React.Component {
                 break;
             }
         }
+
         return (
             <div>
                 <h3>Recomendations</h3>
