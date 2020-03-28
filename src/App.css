@@ -7,3 +7,7 @@
 .square:hover {
   background-color: aqua;
 }
+
+.id {
+  display: none;
+}

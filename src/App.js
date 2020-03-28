@@ -27,15 +27,9 @@ class App extends React.Component {
     handleButtonClick(searchText) {
         let url;
         if (!searchText) {
-            url = "".concat(baseURL, 
-                            "trending/movie/week?api_key=", 
-                            APIKEY);
+            url = `${baseURL}trending/movie/week?api_key=${APIKEY}`
           }else{
-           url = "".concat(baseURL, 
-                            "search/movie?api_key=", 
-                            APIKEY,
-                            "&query=", 
-                            searchText);
+           url = `${baseURL}search/movie?api_key=${APIKEY}&query=${searchText}`
           }
 
         fetch(url)
@@ -45,22 +39,13 @@ class App extends React.Component {
 
 
     handleTitleClick(titleNum) {
+        const titleId = document.querySelectorAll('.Clicked')[0].id;
         let url;
 
         if(this.state.outputState) {
-            url = "".concat(baseURL,
-                             "movie/", 
-                             this.state.data.results[titleNum].id, 
-                             "/recommendations?api_key=", 
-                             APIKEY, 
-                             "&language=en-US&page=1");
+            url = `${baseURL}movie/${titleId}/recommendations?api_key=${APIKEY}&language=en-US&page=1`
         } else { 
-            url = "".concat(baseURL, 
-                            "movie/", 
-                            this.state.recomendData.results[titleNum].id, 
-                            "/recommendations?api_key=", 
-                            APIKEY, 
-                            "&language=en-US&page=1");
+            url = `${baseURL}movie/${titleId}/recommendations?api_key=${APIKEY}&language=en-US&page=1`
         }
 
         fetch(url)
@@ -139,6 +124,22 @@ class SearchBar extends React.Component {
 
 
 class OutputComponent extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.handleTitleClick = this.handleTitleClick.bind(this)
+    }
+
+    handleTitleClick(e) {
+        const node = e.target.closest('li');
+
+        if (!node) {
+            return;
+          }
+        e.target.classList.add('Clicked');
+        this.props.onTitleClick(e.target.innerHTML[0] - 1);
+    }
+
     render() {
         if (this.props.outputState) {
             const data = this.props.data;
@@ -148,12 +149,12 @@ class OutputComponent extends React.Component {
                     titleNum={titleNum}
                     data={data}
                     key={titleNum}
-                    onTitleClick={this.props.onTitleClick}
+                    onTitleClick={this.handleTitleClick}
                 />);
             }
             return (
                 <div> 
-                    <table>
+                    <table onClick={this.handleTitleClick}>
                         <tbody>{titles}</tbody>
                     </table>
                 </div>
@@ -179,18 +180,18 @@ class CreateTitle extends React.Component {
 
 
     handleTitleClick(e) {
-        this.props.onTitleClick(e.target.innerHTML[0] - 1);
+        this.props.onButtonClick();
     }
 
 
     render() {
-        const dataName = this.props.data.results[this.props.titleNum].original_title;
         const numInList = Number(this.props.titleNum) + 1;
+        const data = this.props.data.results[this.props.titleNum]
 
         return (
             <tr>
-                <th onClick={this.handleTitleClick}>
-                    {numInList + ')' + dataName}
+                <th>
+                    <li id={data.id}>{numInList + ')' + data.original_title}</li>
                 </th>
             </tr>
         )
@@ -242,6 +243,22 @@ class TitleOverview extends React.Component {
 
 
 class TitleRecomendations extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.handleTitleClick = this.handleTitleClick.bind(this)
+    }
+
+    handleTitleClick(e) {
+        const node = e.target.closest('li');
+
+        if (!node) {
+            return;
+          }
+        e.target.classList.add('Clicked');
+        this.props.onTitleClick(e.target.innerHTML[0] - 1);
+    }
+
     render() {
         const titles = [];
         let numOfRecomendations = 5;
@@ -263,7 +280,7 @@ class TitleRecomendations extends React.Component {
         return (
             <div>
                 <h3>Recomendations</h3>
-                <table>
+                <table onClick={this.handleTitleClick}>
                     <tbody>{titles}</tbody>
                 </table>
             </div>
