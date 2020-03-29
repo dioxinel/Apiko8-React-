@@ -6,90 +6,6 @@ const baseURL = 'https://api.themoviedb.org/3/';
 const APIKEY = '21f53b102f9fcc68f706abfc92770539';
 const baseImageURL = "https://image.tmdb.org/t/p/";
 const posterSize = 'w300';
-let buffer = {}; // buffer, by which recomendData transfer to data when user click on title in recomendations
-
-
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            recomendData: {},
-            titleNum: '',
-            data: {},
-            outputState: true, // If true return list of titles, if false return title discription
-        }
-
-        this.handleButtonClick = this.handleButtonClick.bind(this);
-        this.handleTitleClick = this.handleTitleClick.bind(this);
-    }
-
-
-    handleButtonClick(searchText) {
-        let url;
-        if (!searchText) {
-            url = `${baseURL}trending/movie/week?api_key=${APIKEY}`
-          }else{
-           url = `${baseURL}search/movie?api_key=${APIKEY}&query=${searchText}`
-          }
-
-        fetch(url)
-        .then(result=>result.json())
-        .then((data) => {this.setState({data: data, outputState: true})})
-    }
-
-
-    handleTitleClick(titleNum) {
-        const titleId = document.querySelectorAll('.Clicked')[0].id;
-        let url;
-
-        if(this.state.outputState) {
-            url = `${baseURL}movie/${titleId}/recommendations?api_key=${APIKEY}&language=en-US&page=1`
-        } else { 
-            url = `${baseURL}movie/${titleId}/recommendations?api_key=${APIKEY}&language=en-US&page=1`
-        }
-
-        fetch(url)
-            .then(result=>result.json())
-            .then((recomendData)=>{
-                if(!this.state.outputState) {
-                    this.setState({
-                        data: buffer 
-                    })
-                }
-
-                this.setState({
-                    outputState: false,
-                    titleNum: titleNum,
-                    recomendData: recomendData,
-                    })  
-            })      
-    }
-
-
-    componentDidMount() {
-        this.handleButtonClick();
-    }
-
-
-    render() {
-        buffer = this.state.recomendData;
-        
-        return(
-            <Fragment>
-                <SearchBar  
-                onButtonClick={this.handleButtonClick} 
-                />
-                <OutputComponent 
-                outputState={this.state.outputState}
-                data={this.state.data}
-                recomendData={this.state.recomendData}
-                titleNum={this.state.titleNum}
-                onTitleClick={this.handleTitleClick}
-                 />
-            </Fragment>
-        )
-    }
-}
 
 
 class SearchBar extends React.Component {
@@ -123,6 +39,86 @@ class SearchBar extends React.Component {
 }
 
 
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            titleData: [],
+            titlesList: [],
+            outputState: true
+        }
+        this.handleTitleClick = this.handleTitleClick.bind(this);
+        this.handleButtonClick = this.handleButtonClick.bind(this);
+    }
+
+
+    handleButtonClick(searchText) {
+        let url;
+        if (!searchText) {
+            url = `${baseURL}trending/movie/week?api_key=${APIKEY}`
+          }else{
+           url = `${baseURL}search/movie?api_key=${APIKEY}&query=${searchText}`
+          }
+
+        fetch(url)
+        .then(result=>result.json())
+        .then((data) => {
+            this.setState({
+                titlesList: data.results, 
+                outputState: true
+            })
+        })
+    }
+
+
+    handleTitleClick() {
+        const title = document.querySelectorAll('.Clicked')[0];
+        title.classList.remove('.Clicked');
+        let titleData;
+        const titlesList = [...this.state.titlesList];
+        for (let item in titlesList) {
+            if (titlesList[item].id + '' === title.id) {
+                titleData = titlesList[item];
+                break;
+            }
+        }
+        
+        const url = `${baseURL}movie/${title.id}/recommendations?api_key=${APIKEY}&language=en-US&page=1`
+        fetch(url)
+            .then(result=>result.json())
+            .then((titlesList)=>{
+                this.setState({
+                    titleData,
+                    titlesList: titlesList.results,
+                    outputState: false,
+                    })  
+            })      
+    }
+
+
+    componentDidMount() {
+        this.handleButtonClick();
+    }
+
+
+    render() {
+        return(
+            <Fragment>
+                <SearchBar  
+                onButtonClick={this.handleButtonClick} 
+                />
+                <OutputComponent
+                    titleData={this.state.titleData}
+                    titlesList={this.state.titlesList}
+                    outputState={this.state.outputState}
+                    onTitleClick={this.handleTitleClick}
+                    />
+            </Fragment>
+        )
+    }
+}
+
+
 class OutputComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -137,79 +133,51 @@ class OutputComponent extends React.Component {
             return;
           }
         e.target.classList.add('Clicked');
-        this.props.onTitleClick(e.target.innerHTML[0] - 1);
+        this.props.onTitleClick();
     }
 
     render() {
         if (this.props.outputState) {
-            const data = this.props.data;
+            const titlesList = this.props.titlesList;
             const titles = []; 
-            for(let titleNum in data.results) {
-                titles.push(<CreateTitle
-                    titleNum={titleNum}
-                    data={data}
-                    key={titleNum}
+            titlesList.map((title) => {
+                return titles.push(<CreateTitle
+                    data={title}
+                    key={title.id}
                     onTitleClick={this.handleTitleClick}
                 />);
-            }
+            })
             return (
                 <div> 
                     <table onClick={this.handleTitleClick}>
-                        <tbody>{titles}</tbody>
+                       <tbody>{titles}</tbody>
                     </table>
                 </div>
             )
-        } else {
-            return (<TitleDiscription 
-                titleNum={this.props.titleNum}
-                onTitleClick={this.props.onTitleClick}
-                data={this.props.data}
-                recomendData={this.props.recomendData}  
-            />)
         }
-    }
-}
 
-
-class CreateTitle extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.handleTitleClick = this.handleTitleClick.bind(this)
-    }
-
-
-    handleTitleClick(e) {
-        this.props.onButtonClick();
-    }
-
-
-    render() {
-        const numInList = Number(this.props.titleNum) + 1;
-        const data = this.props.data.results[this.props.titleNum]
-
-        return (
-            <tr>
-                <th>
-                    <li id={data.id}>{numInList + ')' + data.original_title}</li>
-                </th>
-            </tr>
-        )
+        return (<TitleDiscription 
+            onTitleClick={this.props.onTitleClick}
+            titlesList={this.props.titlesList}
+            titleData={this.props.titleData} 
+        />)
+        
+        
     }
 }
 
 
 class TitleDiscription extends React.Component { 
     render() {
-        const data = this.props.data.results[this.props.titleNum];
-
+        const titlesList = this.props.titlesList;
+        const titleData = this.props.titleData;
         return (
             <div>
-                <TitlePoster posterPath={data.poster_path} />
-               <h1>{data.original_title}</h1>
-               <TitleOverview dataOverview={data.overview} />
+                <TitlePoster posterPath={titleData.poster_path} />
+               <h1>{titleData.original_title}</h1>
+               <TitleOverview dataOverview={titleData.overview} />
                <TitleRecomendations 
-               recomendData={this.props.recomendData}
+               titlesList={titlesList}
                onTitleClick={this.props.onTitleClick} 
                />
             </div>
@@ -220,7 +188,7 @@ class TitleDiscription extends React.Component {
 
 class TitlePoster extends React.Component {
     render() {
-        const url = "".concat(baseImageURL, posterSize, this.props.posterPath); 
+        const url = `${baseImageURL}${posterSize}${this.props.posterPath}`
         return (
             <div>
                 <img src={url} alt={noimageImageUrl} />
@@ -251,24 +219,25 @@ class TitleRecomendations extends React.Component {
 
     handleTitleClick(e) {
         const node = e.target.closest('li');
-
+    
         if (!node) {
             return;
           }
+
         e.target.classList.add('Clicked');
-        this.props.onTitleClick(e.target.innerHTML[0] - 1);
+        this.props.onTitleClick();
     }
 
     render() {
         const titles = [];
         let numOfRecomendations = 5;
 
-        for(let titleNum in this.props.recomendData.results) {
+        for(let titleNum in this.props.titlesList) {
             numOfRecomendations--;
+            const title = this.props.titlesList[titleNum];
             titles.push(<CreateTitle
-                titleNum={titleNum}
-                data={this.props.recomendData}
-                key={titleNum}
+                data={title}
+                key={title.id}
                 onTitleClick={this.props.onTitleClick}
                 />);
 
@@ -284,6 +253,21 @@ class TitleRecomendations extends React.Component {
                     <tbody>{titles}</tbody>
                 </table>
             </div>
+        )
+    }
+}
+
+
+
+class CreateTitle extends React.Component {
+    render() {
+        const data = this.props.data
+        return (
+            <tr>
+                <th>
+                    <li id={data.id}>{data.original_title}</li>
+                </th>
+            </tr>
         )
     }
 }
