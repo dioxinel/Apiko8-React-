@@ -1,13 +1,4 @@
-.square {
-  width: 100px;
-  height: 100px;
-  cursor: pointer;
-}
 
-.square:hover {
-  background-color: aqua;
-}
-
-.id {
-  display: none;
+.page {
+  display: inline;
 }
