@@ -78,14 +78,15 @@ class App extends React.Component {
 
 
     handlePageClick() {
-        let pageNum = document.querySelectorAll('.ClickedPage')[0].id;
+        let page = document.querySelectorAll('.ClickedPage')[0];
+        page.classList.remove('ClickedPage');
         let searchText;
         try {
             searchText = document.getElementById('userFilter').innerHTML.slice(17);
         } catch {
             searchText = '';
         }
-        this.handleButtonClick(searchText, pageNum)
+        this.handleButtonClick(searchText, page.id)
     }
 
 
@@ -303,7 +304,9 @@ class CreateTitle extends React.Component {
 class Pagination extends React.Component {
     constructor(props) {
         super(props);
-
+        this.state = {
+            center: 5
+        }
         this.handlePageClick = this.handlePageClick.bind(this)
     }
 
@@ -313,21 +316,34 @@ class Pagination extends React.Component {
         if (!node) {
             return;
           }
-
+        this.setState({center: Number(e.target.innerHTML)})
         e.target.classList.add('ClickedPage');
         this.props.onPageClick();
     }
     render() {
         const list = [];
-        let pageToRender;
-        if (this.props.numOfPagesInList > 10) {
-            pageToRender = 10;
-        } else {
-            pageToRender = this.props.numOfPagesInList;
+        
+        let center = this.state.center; 
+        const lastPage = this.props.numOfPagesInList
+        if (center < 6) {
+            center = 6;
         }
-        for (let idx = 0; idx < pageToRender; idx++ ){
+        if (center > lastPage - 4) {
+            center = lastPage - 4;
+        } 
+        if(center > 6) {
+            list.push(<Page num={1} key={1} />)
+            list.push(<p className='page' key='after'>  </p>);
+        }
+
+        for (let idx = center - 5; idx < center + 5; idx++ ){
             list.push(<Page num={idx} key={idx} />);
-         }
+        }
+
+        if (center < lastPage - 6) {
+            list.push(<p className='page' key='before'>  </p>);
+            list.push(<Page num={lastPage} key={lastPage} />)
+        }
 
         return (
             <div onClick={this.handlePageClick}>
@@ -340,7 +356,7 @@ class Pagination extends React.Component {
 class Page extends React.Component {
     render() {
         return (
-            <p id={this.props.num + 1} className='page'>{this.props.num + 1}</p>
+            <p id={this.props.num} className='page'>{this.props.num}</p>
         )
     }
 }
