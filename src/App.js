@@ -104,15 +104,21 @@ class App extends React.Component {
         }
         
         const url = `${baseURL}movie/${title.id}/recommendations?api_key=${APIKEY}&language=en-US&page=1`
+        const videoUrl = `${baseURL}movie/${title.id}/videos?api_key=${APIKEY}&language=en-US`
         fetch(url)
             .then(result=>result.json())
             .then((titlesList)=>{
-                this.setState({
-                    titleData,
-                    titlesList: titlesList.results,
-                    outputState: false,
-                    })  
-            })      
+                fetch(videoUrl)
+                    .then(result=>result.json())
+                    .then((videoData)=>{
+                        titleData.videoData = videoData;
+                        this.setState({
+                            titleData,
+                            titlesList: titlesList.results,
+                            outputState: false,
+                        })  
+            })
+        })      
     }
 
 
@@ -212,6 +218,7 @@ class TitleDiscription extends React.Component {
                titlesList={titlesList}
                onTitleClick={this.props.onTitleClick} 
                />
+               <VideoDis videoData={titleData.videoData} />
             </div>
         )
     }
@@ -357,6 +364,29 @@ class Page extends React.Component {
     render() {
         return (
             <p id={this.props.num} className='page'>{this.props.num}</p>
+        )
+    }
+}
+
+
+class VideoDis extends React.Component {
+    render() {
+        const link = `https://www.youtube.com/embed/${this.props.videoData.results[0].key}`
+        return (
+            <div>
+                <h3>Trailer</h3>
+                <iframe 
+                    width="560" 
+                    height="315" 
+                    src={link} 
+                    frameBorder="0" allow="accelerometer; 
+                    autoplay; 
+                    encrypted-media; 
+                    gyroscope; 
+                    picture-in-picture" 
+                    allowFullScreen
+                    title='Trailer'></iframe>
+            </div>
         )
     }
 }
