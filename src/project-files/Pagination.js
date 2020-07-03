@@ -1,16 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-class Pagination extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            center: 5
-        }
-        this.handlePageClick = this.handlePageClick.bind(this)
-    }
+function Pagination(props) {
+    const [center, setCenter] = useState(5);
 
-
-    handlePageClick(e) {
+    function handlePageClick(e) {
         const node = e.target.closest('p');
     
         if (!node) {
@@ -19,16 +12,16 @@ class Pagination extends React.Component {
     
          const center = Number(e.target.innerHTML);
 
-        this.setState({center})
+        setCenter(center);
         e.target.classList.add('ClickedPage');
-        this.props.onPageClick();
+        props.onPageClick();
     }
 
-    render() {
+    
         const list = [];
         let offsetIndex = 4;
-        let center = this.state.center;
-        const lastPage = this.props.numOfPagesInList
+        let mid = center;
+        const lastPage = props.numOfPagesInList
 
         if (lastPage === 1) {
             return (<p hidden={true}>C</p>)
@@ -38,49 +31,48 @@ class Pagination extends React.Component {
                 list.push(<Page num={idx} key={idx} />);
             }
             return (
-                <div onClick={this.handlePageClick}>
+                <div onClick={handlePageClick}>
                     {list}
                 </div>
             )
         }
 
-        if (center < 5) {
-            center = 5;
+        if (mid < 5) {
+            mid = 5;
         }
 
-        if (center > lastPage - 3) {
-            center = lastPage - 3;
+        if (mid > lastPage - 3) {
+            mid = lastPage - 3;
         } 
 
-        if(center > 5) {
+        if(mid > 5) {
             list.push(<Page num={1} key={1} />)
             list.push(<p className='page' key='after'>  </p>);
         }
 
-        for (let idx = center - offsetIndex; idx < center + offsetIndex; idx++ ){
+        for (let idx = mid - offsetIndex; idx < mid + offsetIndex; idx++ ){
             list.push(<Page num={idx} key={idx} />);
         }
 
-        if (center < lastPage - 3) {
+        if (mid < lastPage - 3) {
             list.push(<p className='page' key='before'>  </p>);
             list.push(<Page num={lastPage} key={lastPage} />)
         }
 
         return (
-            <div onClick={this.handlePageClick}>
+            <div onClick={handlePageClick}>
                 {list}
             </div>
         )
-    }
+    
 } 
 
 
-class Page extends React.Component {
-    render() {
-        return (
-            <p id={this.props.num} className='page'>{this.props.num}</p>
-        )
-    }
+function Page(props) {
+    
+    return (
+        <p id={props.num} className='page'>{props.num}</p>
+    )   
 }
 
 export default Pagination;

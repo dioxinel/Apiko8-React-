@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import { CreateTitle } from './App';
 
@@ -7,10 +7,9 @@ const posterSize = 'w300';
 const noimageImageUrl = 'https://very.ua/image/cache/no_image-300x450.jpg';
 
 
-class TitleDiscription extends React.Component { 
-    render() {
-        const titlesList = this.props.titlesList;
-        const titleData = this.props.titleData;
+function TitleDiscription(props) { 
+        const titlesList = props.titlesList;
+        const titleData = props.titleData;
         return (
             <div>
                 <TitlePoster posterPath={titleData.poster_path} />
@@ -18,22 +17,20 @@ class TitleDiscription extends React.Component {
                <TitleOverview dataOverview={titleData.overview} />
                <TitleRecomendations 
                titlesList={titlesList}
-               onTitleClick={this.props.onTitleClick} 
+               onTitleClick={props.onTitleClick} 
                />
                <VideoContainer videoData={titleData.videoData} />
             </div>
         )
-    }
 }
 
 
-class TitlePoster extends React.Component {
-    render() {
-        const posterPath = this.props.posterPath;
+function TitlePoster(props) {
+        const posterPath = props.posterPath;
         let url;
 
         if (posterPath) {
-            url = `${baseImageURL}${posterSize}${this.props.posterPath}`
+            url = `${baseImageURL}${posterSize}${props.posterPath}`
         } else {
             url = noimageImageUrl;
         }
@@ -43,30 +40,21 @@ class TitlePoster extends React.Component {
                 <img src={url} alt='Title poster' />
             </div>
         )
-    }
 }
 
 
-class TitleOverview extends React.Component {
-    render() {
-        const overview = this.props.dataOverview;
+function TitleOverview(props) {
+        const overview = props.dataOverview;
         return (
             <div>
                 {overview}
             </div>
         )
-    }
 }
 
 
-class TitleRecomendations extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.handleTitleClick = this.handleTitleClick.bind(this)
-    }
-
-    handleTitleClick(e) {
+function TitleRecomendations(props) {
+    function handleTitleClick(e) {
         const node = e.target.closest('p');
     
         if (!node) {
@@ -74,26 +62,25 @@ class TitleRecomendations extends React.Component {
           }
 
         e.target.classList.add('Clicked');
-        this.props.onTitleClick();
+        props.onTitleClick();
     }
 
-    render() {
         const titles = [];
         let numOfRecomendations = 5;
 
-        if (this.props.titlesList.length === 0) {
+        if (props.titlesList.length === 0) {
             return (
                 <p hidden={true}></p>    
             )
         }
         
-        for(let titleNum in this.props.titlesList) {
+        for(let titleNum in props.titlesList) {
             numOfRecomendations--;
-            const title = this.props.titlesList[titleNum];
+            const title = props.titlesList[titleNum];
             titles.push(<CreateTitle
                 data={title}
                 key={title.id}
-                onTitleClick={this.props.onTitleClick}
+                onTitleClick={props.onTitleClick}
                 />);
 
             if(numOfRecomendations === 0) {
@@ -104,50 +91,39 @@ class TitleRecomendations extends React.Component {
         return (
             <div>
                 <h3>Recomendations</h3>
-                <div onClick={this.handleTitleClick}>
+                <div onClick={handleTitleClick}>
                     {titles}
                 </div>
             </div>
         )
-    }
 }
 
 
-class VideoContainer extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            displayedTrailer: 1
-        }
-        this.handleTrailerPreviousClick = this.handleTrailerPreviousClick.bind(this);
-        this.handleTrailerNextClick = this.handleTrailerNextClick.bind(this);
-    }
+function VideoContainer(props) {
+    const [displayedTrailer, setDisplayedTrailer] = useState(1);
 
-
-    handleTrailerPreviousClick() {
-        let displayedTrailer;
-        if (this.state.displayedTrailer - 1 < 1) {
-            displayedTrailer = this.props.videoData.results.length;
+    function handleTrailerPreviousClick() {
+        let trailer;
+        if (displayedTrailer - 1 < 1) {
+            trailer = props.videoData.results.length;
         } else {
-            displayedTrailer = this.state.displayedTrailer - 1;
+            trailer = displayedTrailer - 1;
         }
-        this.setState({displayedTrailer})
+        setDisplayedTrailer(trailer);
     }
 
 
-    handleTrailerNextClick() {
-        let displayedTrailer;
-        if (this.state.displayedTrailer + 1 > this.props.videoData.results.length) {
-            displayedTrailer = 1;
+    function handleTrailerNextClick() {
+        let trailer;
+        if (displayedTrailer + 1 > props.videoData.results.length) {
+            trailer = 1;
         } else {
-            displayedTrailer = this.state.displayedTrailer + 1;
+            trailer = displayedTrailer + 1;
         }
-        this.setState({displayedTrailer})
+        setDisplayedTrailer(trailer);
     }
 
-    render() {
-        const displayedTrailer = this.state.displayedTrailer;
-        const numOfTrailers = this.props.videoData.results.length;
+        const numOfTrailers = props.videoData.results.length;
         if (!numOfTrailers) {
             return (
                 <h3>This title don't have trailer.</h3>
@@ -157,7 +133,7 @@ class VideoContainer extends React.Component {
             return (
                 <div>
                 <h3>Trailer</h3>
-                <VideoComponent videoData={this.props.videoData} displayedTrailer={displayedTrailer} />
+                <VideoComponent videoData={props.videoData} displayedTrailer={displayedTrailer} />
                 </div>
             )
         }
@@ -166,18 +142,16 @@ class VideoContainer extends React.Component {
             <div>
                 <h3>Trailer</h3>
                 <p>There is: {numOfTrailers} trailers, you watch {displayedTrailer}</p>
-                <VideoComponent videoData={this.props.videoData} displayedTrailer={displayedTrailer} />
-                <button onClick={this.handleTrailerPreviousClick}>Previous</button>
-                <button onClick={this.handleTrailerNextClick}>Next</button>
+                <VideoComponent videoData={props.videoData} displayedTrailer={displayedTrailer} />
+                <button onClick={handleTrailerPreviousClick}>Previous</button>
+                <button onClick={handleTrailerNextClick}>Next</button>
             </div>
         ) 
-    }
 }
 
 
-class VideoComponent extends React.Component {
-    render() {
-        const link = `https://www.youtube.com/embed/${this.props.videoData.results[this.props.displayedTrailer - 1].key}`;
+function VideoComponent(props) {
+        const link = `https://www.youtube.com/embed/${props.videoData.results[props.displayedTrailer - 1].key}`;
 
         return (
             <iframe 
@@ -192,7 +166,6 @@ class VideoComponent extends React.Component {
                     allowFullScreen
                     title='Trailer'></iframe>
         )
-    }
 }
 
 export default TitleDiscription;
