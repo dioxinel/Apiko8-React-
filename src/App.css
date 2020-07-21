@@ -1,0 +1,123 @@
+body {
+  background-color: rgb(36, 16, 88);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.header{ 
+  margin: auto;
+}
+
+.searchBar {
+  border: 3px solid white;
+  border-radius: 5%;
+  font-size: 14pt;
+  height: 30px;
+  margin-right: 15px;
+  margin-top: 10px;
+  width: 300px;
+}
+
+.searchBar:focus {
+  border: 3px solid red;
+}
+
+.button {
+  background-color: white;
+  border-radius: 15%;
+  cursor: pointer;
+  height: 30px;
+}
+
+.button:hover {
+  box-shadow: 0 3px 12px rgba(255, 255, 255, .4),
+  inset 0 0 12px 0 rgba(255, 255, 255, .3);
+}
+
+.titlesList {
+  align-self: center;
+  background-color: rgb(207, 159, 159);
+  color: black;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 30px;
+  min-height: 500px;
+  padding: 5px;
+  width: 85%;
+}
+
+.lookingFor {
+  width: 100%;
+}
+
+.Title {
+  display: flex;
+  flex-wrap: wrap;
+  height: 380px;
+  justify-content: center;
+  margin: 10px;
+  width: 200px;
+}
+
+.titleName {
+  cursor: pointer;
+  display: auto;
+}
+
+.titleName:hover {
+  text-decoration: underline;
+}
+
+.titlePoster {
+  cursor: pointer;
+  display: center;
+  height: 300px;
+  width: 200px;
+}
+
+.titlePoster:hover {
+  opacity: 0.5;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.paginNode  {
+  background-color: rgb(92, 35, 35);
+  border-radius: 15%;
+  box-shadow: 0 3px 12px rgba(255, 255, 255, .4),
+  inset 0 0 12px 0 rgba(255, 255, 255, .3);
+  color: white;
+  cursor: pointer;
+  height: 50px;
+  line-height: 50px;
+  margin: 5px;
+  margin-top: 10px;
+  text-align: center;
+  width: 50px; 
+}
+
+.paginNode:hover {
+  background-color: rgb(47, 46, 47);
+}
+
+.paginNode:active{
+  background-color: rgb(47, 46, 47);
+  box-shadow: inset 0 3px 12px rgba(255, 255, 255, .4),
+  inset 0 0 12px 0 rgba(255, 255, 255, .3);
+}

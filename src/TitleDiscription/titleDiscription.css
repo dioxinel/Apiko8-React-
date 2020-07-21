@@ -1,0 +1,38 @@
+.discription {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;   
+}
+
+.discriptWrapp {
+    display: flex;
+    flex-direction: column;
+    width: 85%;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: rgb(207, 159, 159);
+}
+
+.recommendations {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 13px;
+}
+
+.discriptPoster {
+    display: inline;
+    margin: 20px;
+    max-width: 300px;  
+}
+
+.preview {
+    margin: 20px;
+    margin-top: 0px;
+}
+
+.titleDiscriptionName {
+    display: inline;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 28px;
+    font-weight: bold;
+}
