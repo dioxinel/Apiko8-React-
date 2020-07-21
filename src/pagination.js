@@ -35,7 +35,7 @@ export const Pagination = ({ countPagesInList, searchText, fetchData }) => {
             list.push(<PaginNode num={idx} key={idx} />);
         }
         return (
-            <div onClick={handlePaginClick}>
+            <div onClick={handlePaginClick} className={'pagination'}>
                 {list}
             </div>
         )
@@ -65,7 +65,6 @@ export const Pagination = ({ countPagesInList, searchText, fetchData }) => {
 
     return (
         <div onClick={handlePaginClick} className={'pagination'}>
-
             {list}
         </div>
     )
